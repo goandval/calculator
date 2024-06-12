@@ -5,6 +5,7 @@ import (
 
 	"github.com/goandval/calculator/internal/config"
 	"github.com/goandval/calculator/internal/http-server/handlers/convert"
+	"github.com/goandval/calculator/internal/pkg/http-server/middlewares/mwcontext"
 	"github.com/goandval/calculator/internal/pkg/logger/zero"
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
@@ -30,7 +31,16 @@ func main() {
 		IdleTimeout:  cfg.IdleTimeout,
 	})
 
-	app.Post("api/v1/convert", convert.New(logger))
+	app.Use(
+		mwcontext.Logger(logger),
+		mwcontext.RequestID(),
+		//...
+	)
+
+	api := app.Group(baseURL)
+	// api.Use(baseURL, loggingMW)
+
+	api.Post("/convert", convert.New(logger))
 
 	// logger.Info().Msg("starting background task")
 	// fastforex.New().Run()
