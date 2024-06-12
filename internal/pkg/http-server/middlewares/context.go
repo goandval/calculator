@@ -1,4 +1,4 @@
-package mwcontext
+package middlewares
 
 import (
 	"github.com/goandval/calculator/pkg/contextx"
@@ -8,7 +8,16 @@ import (
 	"github.com/rs/zerolog"
 )
 
-func RequestID() fiber.Handler {
+func CtxLogger(logger zerolog.Logger) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		logger := logger // копия логгера, тк передаем дальше по указателю
+		ctxWithLogger := contextx.AddLogger(c.UserContext(), &logger)
+		c.SetUserContext(ctxWithLogger)
+		return c.Next()
+	}
+}
+
+func CtxRequestID() fiber.Handler {
 	return newRequestIDMiddleware()
 }
 

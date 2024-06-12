@@ -1,1 +1,17 @@
-.env
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the coverage tool
+*.out
+
+# VSCode
+.vscode/
+
+# GoLand
+.idea/
+
+# CI Reports
+.reports/
+
+# Env
+**/.env
