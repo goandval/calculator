@@ -16,6 +16,7 @@ github.com/gofiber/contrib/fiberzerolog
 github.com/gofiber/fiber/v2
 github.com/gofiber/fiber/v2/internal/schema
 github.com/gofiber/fiber/v2/log
+github.com/gofiber/fiber/v2/middleware/recover
 github.com/gofiber/fiber/v2/middleware/requestid
 github.com/gofiber/fiber/v2/utils
 # github.com/google/uuid v1.6.0

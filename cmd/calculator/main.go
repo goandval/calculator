@@ -8,6 +8,7 @@ import (
 	"github.com/goandval/calculator/internal/pkg/http-server/middlewares"
 	"github.com/goandval/calculator/internal/pkg/logger/zero"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/joho/godotenv"
 )
 
@@ -35,7 +36,8 @@ func main() {
 		middlewares.CtxLogger(logger),
 		middlewares.CtxRequestID(),
 		middlewares.Logger(&logger),
-		//...
+		// maybe metrics
+		recover.New(),
 	)
 
 	api := app.Group(baseURL)
