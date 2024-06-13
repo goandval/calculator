@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/goandval/calculator/internal/config"
 	"github.com/goandval/calculator/internal/http-server/handlers/convert"
@@ -11,6 +14,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/joho/godotenv"
+	"github.com/rs/zerolog"
 )
 
 const baseURL = "api/v1"
@@ -50,11 +54,31 @@ func main() {
 	// logger.Info().Msg("starting background task")
 	// fastforex.New().Run()
 
-	logger.Info().Int("address", cfg.Port).Msg("starting server")
+	startServer(logger, app, cfg.Port)
+}
 
-	if err := app.Listen(fmt.Sprintf(":%d", cfg.Port)); err != nil {
-		logger.Error().Err(err).Msg("failed to start server")
+func startServer(logger zerolog.Logger, app *fiber.App, port int) {
+	logger.Info().Int("address", port).Msg("starting server")
+
+	startErr := make(chan struct{})
+	go func() {
+		if err := app.Listen(fmt.Sprintf("localhost:%d", port)); err != nil {
+			logger.Error().Err(err).Msg("failed to start server")
+			close(startErr)
+		}
+	}()
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
+
+	select {
+	case <-startErr:
+	case <-stop:
+		logger.Info().Msg("stopping server")
+		if err := app.Shutdown(); err != nil {
+			logger.Error().Err(err).Msg("failed to gracefully shutdown server")
+		}
+
+		logger.Info().Msg("server stopped")
 	}
-
-	logger.Error().Msg("server stopped")
 }
