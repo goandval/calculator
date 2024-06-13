@@ -5,6 +5,7 @@ import (
 
 	"github.com/goandval/calculator/internal/config"
 	"github.com/goandval/calculator/internal/http-server/handlers/convert"
+	"github.com/goandval/calculator/internal/http-server/handlers/probes"
 	"github.com/goandval/calculator/internal/pkg/http-server/middlewares"
 	"github.com/goandval/calculator/internal/pkg/logger/zero"
 	"github.com/gofiber/fiber/v2"
@@ -39,6 +40,9 @@ func main() {
 		// maybe metrics
 		recover.New(),
 	)
+
+	app.Get(probes.LivenessPath, probes.Liveness())
+	app.Get(probes.StartupPath, probes.Startup())
 
 	api := app.Group(baseURL)
 	api.Post("/convert", convert.New(logger))
