@@ -1,11 +1,17 @@
 package domain
 
-import "time"
+import (
+	"time"
+)
 
-type ConvertingInfo struct {
-	From  string
-	To    string
-	Count int64 // в копейках
+type RateRequest struct {
+	From string
+	To   string
+}
+
+type RateResponse struct {
+	Count   int64
+	Updated time.Time
 }
 
 type Response struct {
@@ -18,3 +24,5 @@ type Currency struct {
 	Name  string
 	Count int64
 }
+
+// EUR, USD, CNY, USDT, USDC, ETH

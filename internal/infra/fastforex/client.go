@@ -1,15 +1,37 @@
 package fastforex
 
-import "github.com/go-resty/resty/v2"
+import (
+	"os"
+	"time"
+
+	"github.com/go-resty/resty/v2"
+	"github.com/goandval/calculator/internal/config"
+)
 
 type Client struct {
-	*resty.Client
+	driver         *resty.Client
+	updateInterval time.Duration
 }
 
-func New() *Client { // убрать * в будущем
-	return nil
+func New(cfg config.ClientConfig) *Client {
+	client := resty.
+		New().
+		SetBaseURL(cfg.BaseURL).
+		SetTimeout(cfg.Timeout)
+	return &Client{
+		driver:         client,
+		updateInterval: cfg.Timeout,
+	}
 }
 
-func (c Client) Run() {
-	
+func (c Client) Run(stop <-chan os.Signal) {
+	ticker := time.NewTicker(c.updateInterval)
+
+	for {
+		select {
+		case <-stop:
+			break
+		}
+	}
+	<-ticker.C
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/goandval/calculator/internal/config"
 	"github.com/goandval/calculator/internal/http-server/handlers/convert"
 	"github.com/goandval/calculator/internal/http-server/handlers/probes"
+	"github.com/goandval/calculator/internal/infra/fastforex"
 	"github.com/goandval/calculator/internal/pkg/http-server/middlewares"
 	"github.com/goandval/calculator/internal/pkg/logger/zero"
 	"github.com/gofiber/fiber/v2"
@@ -16,6 +17,13 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
 )
+
+// TODO:
+// слой работы с БД + миграции
+// рести клиент в бекграунд таске и атомарно менять указатель на мапу
+// в стартап пробу добавить проверку клиента и БД
+// тесты
+// мейкфайл + CI
 
 const baseURL = "api/v1"
 
@@ -32,9 +40,9 @@ func main() {
 	logger.Info().Msg("starting calculator service")
 
 	app := fiber.New(fiber.Config{
-		ReadTimeout:  cfg.Timeout,
-		WriteTimeout: cfg.Timeout,
-		IdleTimeout:  cfg.IdleTimeout,
+		ReadTimeout:  cfg.ServerConfig.Timeout,
+		WriteTimeout: cfg.ServerConfig.Timeout,
+		IdleTimeout:  cfg.ServerConfig.IdleTimeout,
 	})
 
 	app.Use(
@@ -51,10 +59,10 @@ func main() {
 	api := app.Group(baseURL)
 	api.Post("/convert", convert.New(logger))
 
-	// logger.Info().Msg("starting background task")
-	// fastforex.New().Run()
+	logger.Info().Msg("starting background task")
+	fastforex.New(cfg.ClientConfig).Run()
 
-	startServer(logger, app, cfg.Port)
+	startServer(logger, app, cfg.ServerConfig.Port)
 }
 
 func startServer(logger zerolog.Logger, app *fiber.App, port int) {

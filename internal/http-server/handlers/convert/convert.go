@@ -7,13 +7,13 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type CurrencyProvider interface {
-	Get(info domain.ConvertingInfo)
+type RateProvider interface {
+	Rate(domain.RateRequest) (domain.RateResponse, error)
 }
 
 // from and to currencies - get from json body
 // return curs & count
-func New(log zerolog.Logger) fiber.Handler {
+func New(log zerolog.Logger, rateProvider RateProvider) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		rid := contextx.GetRequestID(c.UserContext())
 		c.JSON(rid)
